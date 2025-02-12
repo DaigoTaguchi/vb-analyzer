@@ -15,9 +15,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className="flex flex-col items-center">
         <Header />
-        <div className="container mx-auto my-auto px-4 py-4">{children}</div>
+        <main className="w-full max-w-5xl mx-auto px-4 py-8">{children}</main>
       </body>
       <PrelineScript />
     </html>
