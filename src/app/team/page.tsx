@@ -11,6 +11,16 @@ export default function Team() {
     setPlayers(newPlayers);
   };
 
+  const addPlayer = () => {
+    setPlayers([...players, ""]);
+  };
+
+  const deletePlayer = () => {
+    const playerList = [...players];
+    playerList.pop();
+    setPlayers(playerList);
+  };
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-xl shadow sm:p-7">
@@ -67,6 +77,22 @@ export default function Team() {
                 />
               </div>
             ))}
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={addPlayer}
+                className="w-full mt-4 py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-200"
+              >
+                選手を追加
+              </button>
+              <button
+                type="button"
+                onClick={deletePlayer}
+                className="w-full mt-4 py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-200"
+              >
+                選手を削除
+              </button>
+            </div>
           </div>
         </form>
       </div>
