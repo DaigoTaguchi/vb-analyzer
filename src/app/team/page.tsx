@@ -2,23 +2,30 @@
 
 import { useState } from "react";
 
+type Player = {
+  id: string;
+  name: string;
+};
+
 export default function Team() {
-  const [players, setPlayers] = useState(Array(7).fill(""));
+  const [players, setPlayers] = useState<Player[]>(
+    Array(7)
+      .fill("")
+      .map(() => ({ id: crypto.randomUUID(), name: "" }))
+  );
 
   const handlePlayerChange = (index: number, value: string) => {
     const newPlayers = [...players];
-    newPlayers[index] = value;
+    newPlayers[index].name = value;
     setPlayers(newPlayers);
   };
 
-  const addPlayer = () => {
-    setPlayers([...players, ""]);
+  const handleAddPlayer = () => {
+    setPlayers([...players, { id: crypto.randomUUID(), name: "" }]);
   };
 
-  const deletePlayer = () => {
-    const playerList = [...players];
-    playerList.pop();
-    setPlayers(playerList);
+  const handleDeletePlayer = (id: string) => {
+    setPlayers(players.filter((player) => player.id !== id));
   };
 
   return (
@@ -43,7 +50,7 @@ export default function Team() {
               <input
                 id="teamName"
                 type="text"
-                className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
+                className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-blue-600 transition duration-100 focus:ring-1"
                 placeholder="チーム名"
               />
             </div>
@@ -59,40 +66,57 @@ export default function Team() {
                 チームに登録する選手の情報を入力してください
               </p>
             </div>
-            {players.map((_, index) => (
-              <div key={index}>
+            {players.map((player, index) => (
+              <div key={player.id}>
                 <label
                   htmlFor={`player${index + 1}`}
                   className="mb-2 inline-block text-sm text-gray-800 sm:text-base"
                 >
                   選手{index + 1}
                 </label>
-                <input
-                  id={`player${index + 1}`}
-                  type="text"
-                  className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
-                  placeholder={`選手${index + 1}`}
-                  value={players[index]}
-                  onChange={(e) => handlePlayerChange(index, e.target.value)}
-                />
+                <div className="flex rounded-lg">
+                  <input
+                    id={`player${index + 1}`}
+                    type="text"
+                    className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-blue-600 transition duration-100 focus:ring-1"
+                    placeholder={`選手${index + 1}`}
+                    value={player.name}
+                    onChange={(e) => handlePlayerChange(index, e.target.value)}
+                  />
+                  <button
+                    className="w-[2.875rem] h-[2.875rem] shrink-0 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-e-md border border-transparent bg-red-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+                    onClick={() => handleDeletePlayer(player.id)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="white"
+                      width="20"
+                      height="20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M6.225 4.811a1 1 0 0 1 1.414 0L12 9.172l4.361-4.36a1 1 0 1 1 1.414 1.415L13.415 10.5l4.36 4.361a1 1 0 0 1-1.414 1.414L12 11.914l-4.361 4.36a1 1 0 0 1-1.414-1.414l4.36-4.361-4.36-4.362a1 1 0 0 1 0-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </div>
             ))}
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={addPlayer}
-                className="w-full mt-4 py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-200"
-              >
-                選手を追加
-              </button>
-              <button
-                type="button"
-                onClick={deletePlayer}
-                className="w-full mt-4 py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-200"
-              >
-                選手を削除
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleAddPlayer}
+              className="w-24 mt-4 py-2 px-4 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition duration-200"
+            >
+              追加
+            </button>
+            <button
+              type="button"
+              className="w-full mt-4 py-2 px-4 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition duration-200"
+            >
+              チームを登録
+            </button>
           </div>
         </form>
       </div>
