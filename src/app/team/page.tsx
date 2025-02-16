@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type Player = {
@@ -8,11 +9,14 @@ type Player = {
 };
 
 export default function Team() {
+  const [teamName, setTeamName] = useState("");
   const [players, setPlayers] = useState<Player[]>(
-    Array(7)
+    Array(1)
       .fill("")
       .map(() => ({ id: crypto.randomUUID(), name: "" }))
   );
+
+  const router = useRouter();
 
   const handlePlayerChange = (index: number, value: string) => {
     const newPlayers = [...players];
@@ -28,6 +32,28 @@ export default function Team() {
     setPlayers(players.filter((player) => player.id !== id));
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("/api/team", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ teamName, players: players.map((p) => p.name) }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "登録に失敗しました");
+      }
+      router.push("thanks");
+    } catch (error) {
+      alert(`エラー: ${(error as Error).message}`);
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-xl shadow sm:p-7">
@@ -38,7 +64,7 @@ export default function Team() {
           </p>
         </div>
 
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4 p-4 md:p-8">
             <div>
               <label
@@ -50,8 +76,10 @@ export default function Team() {
               <input
                 id="teamName"
                 type="text"
+                value={teamName}
                 className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-blue-600 transition duration-100 focus:ring-1"
                 placeholder="チーム名"
+                onChange={(e) => setTeamName(e.target.value)}
               />
             </div>
 
@@ -112,7 +140,7 @@ export default function Team() {
               追加
             </button>
             <button
-              type="button"
+              type="submit"
               className="w-full mt-4 py-2 px-4 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition duration-200"
             >
               チームを登録

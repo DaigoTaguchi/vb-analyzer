@@ -29,6 +29,8 @@ model Players{
 
   // child
   matchStats MatchStats?
+
+  @@map("players")
 }
 
 // 試合
