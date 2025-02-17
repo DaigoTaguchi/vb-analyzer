@@ -2,11 +2,22 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { z } from "zod";
 
 type Player = {
   id: string;
   name: string;
 };
+
+const TeamSchema = z.object({
+  teamName: z
+    .string()
+    .min(1, "チーム名を入力してください")
+    .max(100, "100文字以内で入力してください"),
+  players: z
+    .array(z.string().min(1, "選手名を入力してください"))
+    .max(20, "選手は一度に20人まで登録できます"),
+});
 
 export default function Team() {
   const [teamName, setTeamName] = useState("");
@@ -15,6 +26,10 @@ export default function Team() {
       .fill("")
       .map(() => ({ id: crypto.randomUUID(), name: "" }))
   );
+  const [errors, setErrors] = useState<{
+    teamName?: string;
+    players?: string[];
+  }>({});
 
   const router = useRouter();
 
@@ -35,6 +50,20 @@ export default function Team() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const validationResult = TeamSchema.safeParse({
+      teamName,
+      players: players.map((p) => p.name),
+    });
+
+    if (!validationResult.success) {
+      const fieldErrors = validationResult.error.flatten().fieldErrors;
+      setErrors({
+        teamName: fieldErrors.teamName?.[0],
+        players: fieldErrors.players,
+      });
+      return;
+    }
+
     try {
       const response = await fetch("/api/team", {
         method: "POST",
@@ -48,7 +77,7 @@ export default function Team() {
         const data = await response.json();
         throw new Error(data.message || "登録に失敗しました");
       }
-      router.push("thanks");
+      router.push("/team/thanks");
     } catch (error) {
       alert(`エラー: ${(error as Error).message}`);
     }
@@ -81,6 +110,9 @@ export default function Team() {
                 placeholder="チーム名"
                 onChange={(e) => setTeamName(e.target.value)}
               />
+              {errors.teamName && (
+                <p className="text-red-600 text-sm mt-1">{errors.teamName}</p>
+              )}
             </div>
 
             <div className="relative flex items-center justify-center">
@@ -130,6 +162,11 @@ export default function Team() {
                     </svg>
                   </button>
                 </div>
+                {errors.players?.[index] && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {errors.players[index]}
+                  </p>
+                )}
               </div>
             ))}
             <button
