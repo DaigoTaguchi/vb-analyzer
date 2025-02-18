@@ -29,6 +29,7 @@ export default function Team() {
   const [errors, setErrors] = useState<{
     teamName?: string;
     players?: string[];
+    apiError?: string;
   }>({});
 
   const router = useRouter();
@@ -64,23 +65,24 @@ export default function Team() {
       return;
     }
 
-    try {
-      const response = await fetch("/api/team", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ teamName, players: players.map((p) => p.name) }),
-      });
+    const response = await fetch("/api/team", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ teamName, players: players.map((p) => p.name) }),
+    });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "登録に失敗しました");
-      }
-      router.push("/team/thanks");
-    } catch (error) {
-      alert(`エラー: ${(error as Error).message}`);
+    if (!response.ok) {
+      const data = await response.json();
+      setErrors((prev) => ({
+        ...prev,
+        apiError: data.message || "登録に失敗しました",
+      }));
+      return;
     }
+
+    router.push("/team/thanks");
   };
 
   return (
@@ -92,7 +94,6 @@ export default function Team() {
             vb-analyzer に登録するチームの情報を入力してください
           </p>
         </div>
-
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4 p-4 md:p-8">
             <div>
@@ -176,6 +177,49 @@ export default function Team() {
             >
               追加
             </button>
+
+            {errors.apiError && (
+              <div
+                className="bg-red-50 border-s-4 border-red-500 p-4 dark:bg-red-800/30"
+                role="alert"
+                tabIndex={-1}
+                aria-labelledby="hs-bordered-red-style-label"
+              >
+                <div className="flex">
+                  <div className="shrink-0">
+                    <span className="inline-flex justify-center items-center size-8 rounded-full border-4 border-red-100 bg-red-200 text-red-800 dark:border-red-900 dark:bg-red-800 dark:text-red-400">
+                      <svg
+                        className="shrink-0 size-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                      </svg>
+                    </span>
+                  </div>
+                  <div className="ms-3">
+                    <h3
+                      id="hs-bordered-red-style-label"
+                      className="text-gray-800 font-semibold dark:text-white"
+                    >
+                      Error!
+                    </h3>
+                    <p className="text-sm text-gray-700 dark:text-neutral-400">
+                      {errors.apiError}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <button
               type="submit"
               className="w-full mt-4 py-2 px-4 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition duration-200"
