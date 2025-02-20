@@ -14,7 +14,7 @@ model Teams {
 
   // child
   players Players[]
-  matches Matches?
+  matches Matches[]
   @@map("teams")
 }
 
@@ -25,7 +25,7 @@ model Players {
 
   // parent
   teams Teams @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  teamId Int @unique @map("team_id")
+  teamId Int  @map("team_id")
 
   // child
   matchStats MatchStats?
@@ -44,8 +44,8 @@ model Matches {
   setNum           Int    @map("set_num") 
 
   // parent
-  teams   Teams @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  teamId Int @unique @map("team_id")
+  teams  Teams @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId Int   @map("team_id")
 
   // child
   matchStats MatchStats?
