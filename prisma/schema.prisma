@@ -10,7 +10,7 @@ datasource db {
 // チーム
 model Teams {
   id       Int    @id @default(autoincrement())
-  name String @map("name") @db.VarChar(255)
+  name     String @unique @map("name") @db.VarChar(255)
 
   // child
   players Players[]
@@ -20,7 +20,7 @@ model Teams {
 
 // 選手
 model Players {
-  id       Int    @id @default(autoincrement())
+  id   Int    @id @default(autoincrement())
   name String @map("name") @db.VarChar(255)
 
   // parent
@@ -28,6 +28,7 @@ model Players {
   teamId Int  @map("team_id")
 
   // child
+  setPlayers SetPlayers[]
   matchStats MatchStats?
 
   @@map("players")
@@ -48,10 +49,44 @@ model Matches {
   teamId Int   @map("team_id")
 
   // child
+  sets Sets[]
   matchStats MatchStats?
   matchProgress MatchProgress?
 
   @@map("matches")
+}
+
+// セット
+model Sets {
+  id                Int     @id @default(autoincrement())
+  setNumber         Int     @map("set_number")
+  homeTeamScore     Int     @default(0) @map("home_team_score")
+  opponentTeamScore Int     @default(0) @map("opponent_team_score")
+  isWon             Boolean @default(false) @map("is_won")
+
+  // parent
+  matches Matches @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  matchId Int   @map("match_id")
+
+  // child
+  setPlayers SetPlayers[]
+
+  @@map("sets")
+}
+
+// セットごとの選手
+model SetPlayers {
+  id        Int @id @default(autoincrement())
+
+  // parent
+  sets    Sets    @relation(fields: [setId], references: [id], onDelete: Cascade)
+  setId   Int     @map("set_id")
+
+  players Players @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  playerId Int    @map("player_id")
+
+  @@unique([setId, playerId]) // 1つのセットに同じ選手を重複登録できないようにする
+  @@map("set_players")
 }
 
 // 試合のデータ

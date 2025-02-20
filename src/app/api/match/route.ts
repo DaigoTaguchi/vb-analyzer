@@ -1,10 +1,6 @@
-import { PrismaClient } from "@prisma/client";
-import { NextApiRequest, NextApiResponse } from "next";
+import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 import { z } from "zod";
-
-type ResponseData = {
-  message: string;
-};
 
 const MatchRequestBodySchema = z.object({
   title: z.string(),
@@ -14,21 +10,16 @@ const MatchRequestBodySchema = z.object({
   setNum: z.number(),
 });
 
-const prisma = new PrismaClient();
-
 // team 一覧の情報を入力されたときに呼び出される API
 // DB に既に team が存在するかどうかを確認して、存在している場合はエラーを返す
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<ResponseData>
-) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "invalid method" });
-  }
-
-  const result = MatchRequestBodySchema.safeParse(req.body);
+export async function POST(req: Request) {
+  const body = await req.json();
+  const result = MatchRequestBodySchema.safeParse(body);
   if (!result.success) {
-    return res.status(400).json({ message: "Invalid request body" });
+    return NextResponse.json(
+      { message: "Invalid request body" },
+      { status: 400 }
+    );
   }
 
   const { title, homeTeamName, opponentTeamName, setNum, teamId } = result.data;
@@ -43,9 +34,15 @@ export default async function handler(
         setNum,
       },
     });
-    return res.status(201).json({ message: "match created successfully" });
+    return NextResponse.json(
+      { message: "match created successfully" },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error creating team", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

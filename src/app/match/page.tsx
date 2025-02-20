@@ -121,7 +121,7 @@ export default function Match() {
       return;
     }
 
-    router.push("/match/lineup");
+    router.push(`/match/set?teamId=${homeTeam.id}`);
   };
 
   return (

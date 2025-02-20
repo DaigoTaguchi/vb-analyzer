@@ -1,31 +1,22 @@
-import { PrismaClient } from "@prisma/client";
-import { NextApiRequest, NextApiResponse } from "next";
+import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 import { z } from "zod";
-
-type ResponseData = {
-  message: string;
-};
 
 const RequestBodySchema = z.object({
   teamName: z.string(),
   players: z.array(z.string()),
 });
 
-const prisma = new PrismaClient();
-
 // team 一覧の情報を入力されたときに呼び出される API
 // DB に既に team が存在するかどうかを確認して、存在している場合はエラーを返す
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<ResponseData>
-) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "invalid method" });
-  }
-
-  const result = RequestBodySchema.safeParse(req.body);
+export async function POST(req: Request) {
+  const body = await req.json();
+  const result = RequestBodySchema.safeParse(body);
   if (!result.success) {
-    return res.status(400).json({ message: "Invalid request body" });
+    return NextResponse.json(
+      { message: "Invalid request body" },
+      { status: 400 }
+    );
   }
 
   const { teamName, players } = result.data;
@@ -38,7 +29,10 @@ export default async function handler(
     });
 
     if (existingTeam) {
-      return res.status(409).json({ message: "Team name already exists" });
+      return NextResponse.json(
+        { message: "Team name already exists" },
+        { status: 409 }
+      );
     }
 
     await prisma.$transaction(async (tx) => {
@@ -55,11 +49,15 @@ export default async function handler(
       }
     });
 
-    return res
-      .status(201)
-      .json({ message: "team and players created successfully" });
+    return NextResponse.json(
+      { message: "team and players created successfully" },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error creating team", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
