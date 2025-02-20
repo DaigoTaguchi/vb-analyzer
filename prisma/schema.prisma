@@ -14,18 +14,18 @@ model Teams {
 
   // child
   players Players[]
-  matches Matches?
+  matches Matches[]
   @@map("teams")
 }
 
 // 選手
-model Players{
+model Players {
   id       Int    @id @default(autoincrement())
   name String @map("name") @db.VarChar(255)
 
   // parent
   teams Teams @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  teamId Int @unique @map("team_id")
+  teamId Int  @map("team_id")
 
   // child
   matchStats MatchStats?
@@ -35,15 +35,17 @@ model Players{
 
 // 試合
 model Matches {
-  id        Int      @id @default(autoincrement())
-  eventedAt DateTime @default(now()) @map("evented_at")
+  id               Int      @id @default(autoincrement())
+  eventedAt        DateTime @default(now()) @map("evented_at")
 
-  homeTeamName String @map("home_team_name") @db.VarChar(255)
+  title            String @map("title")          @db.VarChar(255) 
+  homeTeamName     String @map("home_team_name") @db.VarChar(255)
   opponentTeamName String @map("opponent_team_name")
+  setNum           Int    @map("set_num") 
 
   // parent
-  teams   Teams @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  teamId Int @unique @map("team_id")
+  teams  Teams @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId Int   @map("team_id")
 
   // child
   matchStats MatchStats?

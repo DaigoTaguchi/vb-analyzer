@@ -6,9 +6,12 @@ type ResponseData = {
   message: string;
 };
 
-const RequestBodySchema = z.object({
-  teamName: z.string(),
-  players: z.array(z.string()),
+const MatchRequestBodySchema = z.object({
+  title: z.string(),
+  homeTeamName: z.string(),
+  teamId: z.number(),
+  opponentTeamName: z.string(),
+  setNum: z.number(),
 });
 
 const prisma = new PrismaClient();
@@ -23,41 +26,24 @@ export default async function handler(
     return res.status(405).json({ message: "invalid method" });
   }
 
-  const result = RequestBodySchema.safeParse(req.body);
+  const result = MatchRequestBodySchema.safeParse(req.body);
   if (!result.success) {
     return res.status(400).json({ message: "Invalid request body" });
   }
 
-  const { teamName, players } = result.data;
+  const { title, homeTeamName, opponentTeamName, setNum, teamId } = result.data;
 
   try {
-    const existingTeam = await prisma.teams.findFirst({
-      where: {
-        name: teamName,
+    await prisma.matches.create({
+      data: {
+        title,
+        homeTeamName,
+        teamId,
+        opponentTeamName,
+        setNum,
       },
     });
-
-    if (existingTeam) {
-      return res.status(409).json({ message: "Team name already exists" });
-    }
-
-    await prisma.$transaction(async (tx) => {
-      const newTeam = await tx.teams.create({
-        data: {
-          name: teamName,
-        },
-      });
-
-      if (players.length > 0) {
-        await tx.players.createMany({
-          data: players.map((name) => ({ name, teamId: newTeam.id })),
-        });
-      }
-    });
-
-    return res
-      .status(201)
-      .json({ message: "team and players created successfully" });
+    return res.status(201).json({ message: "match created successfully" });
   } catch (error) {
     console.error("Error creating team", error);
     return res.status(500).json({ message: "Internal Server Error" });
