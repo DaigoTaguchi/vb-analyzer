@@ -28,7 +28,7 @@ model Players {
   teamId Int  @map("team_id")
 
   // child
-  setPlayers SetPlayers[]
+  orderMembers OrderMembers[]
   matchStats MatchStats?
 
   @@map("players")
@@ -69,14 +69,15 @@ model Sets {
   matchId Int   @map("match_id")
 
   // child
-  setPlayers SetPlayers[]
+  orderMembers OrderMembers[]
 
   @@map("sets")
 }
 
 // セットごとの選手
-model SetPlayers {
+model OrderMembers {
   id        Int @id @default(autoincrement())
+  rotation  Int @map("rotation")
 
   // parent
   sets    Sets    @relation(fields: [setId], references: [id], onDelete: Cascade)
@@ -86,7 +87,7 @@ model SetPlayers {
   playerId Int    @map("player_id")
 
   @@unique([setId, playerId]) // 1つのセットに同じ選手を重複登録できないようにする
-  @@map("set_players")
+  @@map("order_members")
 }
 
 // 試合のデータ
