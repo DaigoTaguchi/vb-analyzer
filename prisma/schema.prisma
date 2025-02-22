@@ -42,7 +42,7 @@ model Matches {
   title            String @map("title")          @db.VarChar(255) 
   homeTeamName     String @map("home_team_name") @db.VarChar(255)
   opponentTeamName String @map("opponent_team_name")
-  setNum           Int    @map("set_num") 
+  setLength           Int    @map("set_length") 
 
   // parent
   teams  Teams @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -71,6 +71,7 @@ model Sets {
   // child
   orderMembers OrderMembers[]
 
+  @@unique([setNumber, matchId]) // 1つの試合に同じセットを登録できないようにする
   @@map("sets")
 }
 

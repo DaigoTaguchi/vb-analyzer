@@ -7,7 +7,7 @@ const MatchRequestBodySchema = z.object({
   homeTeamName: z.string(),
   teamId: z.number(),
   opponentTeamName: z.string(),
-  setNum: z.number(),
+  setLength: z.number(),
 });
 
 // team 一覧の情報を入力されたときに呼び出される API
@@ -22,7 +22,8 @@ export async function POST(req: Request) {
     );
   }
 
-  const { title, homeTeamName, opponentTeamName, setNum, teamId } = result.data;
+  const { title, homeTeamName, opponentTeamName, setLength, teamId } =
+    result.data;
 
   try {
     await prisma.matches.create({
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
         homeTeamName,
         teamId,
         opponentTeamName,
-        setNum,
+        setLength,
       },
     });
     return NextResponse.json(

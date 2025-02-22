@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   } = result.data;
 
   try {
-    const result = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       const set = await tx.sets.create({
         data: {
           setNumber,
@@ -48,14 +48,22 @@ export async function POST(req: Request) {
           matchId,
         },
       });
+
+      await tx.orderMembers.createMany({
+        data: orderMembers.map((member) => ({
+          rotation: member.rotation,
+          playerId: member.playerId,
+          setId: set.id,
+        })),
+      });
     });
 
     return NextResponse.json(
-      { message: "match created successfully" },
+      { message: "set and orderMember created successfully" },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating team", error);
+    console.error("Error creating set and orderMember", error);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }

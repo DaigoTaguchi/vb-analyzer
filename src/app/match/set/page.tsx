@@ -1,7 +1,8 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { notFound, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { z } from "zod";
 
 type Player = {
   id: number;
@@ -15,7 +16,30 @@ type OrderMember = {
   playerId: number | null;
 };
 
+const SetSchema = z.array(
+  z.object({
+    rotation: z.number(),
+    setId: z.number(),
+    playerId: z
+      .number()
+      .nullable()
+      .refine((val) => val !== null, {
+        message: "選手を選択してください",
+      }),
+  })
+);
+
 export default function Set() {
+  const searchParams = useSearchParams();
+  const teamId = searchParams.get("teamId");
+  const setNumber = searchParams.get("setNumber");
+  const matchId = searchParams.get("matchId");
+
+  // /match ページで試合情報の登録をしたときの ID をクエリで送信するように変更する必要がある
+  if (!setNumber || !teamId || !matchId) {
+    notFound();
+  }
+
   const [players, setPlayers] = useState<Player[]>([]);
   const [orderMembers, setOrderMembers] = useState<OrderMember[]>(
     Array.from({ length: 6 }, (_, i) => ({
@@ -24,12 +48,14 @@ export default function Set() {
       playerId: null,
     }))
   );
-  const handleSubmit = () => {
-    // API で選手を登録
-  };
+  const [errors, setErrors] = useState<Record<number, string | null>>({});
 
-  const searchParams = useSearchParams();
-  const teamId = searchParams.get("teamId");
+  const handleSubmit = (e: React.FormEvent) => {
+    // API で選手を登録
+    e.preventDefault();
+
+    const result = SetSchema.safeParse(orderMembers);
+  };
 
   useEffect(() => {
     // API でチームに所属している選手一覧を取得
