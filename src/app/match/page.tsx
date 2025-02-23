@@ -34,7 +34,7 @@ export default function Match() {
   const [isOpen, setIsOpen] = useState(false);
   const [homeTeam, setHomeTeam] = useState<Team | null>(null);
   const [opponentTeamName, setOpponentTeamName] = useState("");
-  const [setNum, setSetNum] = useState("3");
+  const [setLength, setSetLength] = useState("3");
   const [errors, setErrors] = useState<{
     title?: string;
     homeTeam?: string;
@@ -108,7 +108,7 @@ export default function Match() {
         homeTeamName: homeTeam.name || "",
         teamId: homeTeam.id || opponentTeamName,
         opponentTeamName,
-        setNum: parseInt(setNum),
+        setLength: parseInt(setLength),
       }),
     });
 
@@ -121,7 +121,12 @@ export default function Match() {
       return;
     }
 
-    router.push("/match/lineup");
+    const data = await response.json();
+    const matchId = data.matchId;
+
+    router.push(
+      `/match/set?teamId=${homeTeam.id}&matchId=${matchId}&setNumber=1`
+    );
   };
 
   return (
@@ -252,15 +257,15 @@ export default function Match() {
           </div>
           <div>
             <label
-              htmlFor="setNum"
+              htmlFor="setLength"
               className="mb-2 inline-block text-sm text-gray-800 sm:text-base"
             >
               セット数
             </label>
             <SelectMenu
               options={["1", "2", "3", "4", "5"]}
-              initOption={setNum}
-              onChange={setSetNum}
+              initOption={setLength}
+              onChange={setSetLength}
             />
           </div>
           {errors.apiError && (
