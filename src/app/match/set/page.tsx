@@ -35,6 +35,7 @@ export default function Set() {
   );
   const [errors, setErrors] = useState<{
     apiError?: string;
+    orderMembers?: { [key: number]: string };
   }>({});
 
   useEffect(() => {
@@ -66,6 +67,19 @@ export default function Set() {
   const handleSubmit = async (e: React.FormEvent) => {
     // API で選手を登録
     e.preventDefault();
+
+    // 未選択の選手がいる場合はエラーを出す
+    const missingSelections: { [key: number]: string } = {};
+    orderMembers.forEach(({ playerId, rotation }) => {
+      if (playerId === null) {
+        missingSelections[rotation] = `S${rotation} の選手を選択してください`;
+      }
+    });
+
+    if (Object.keys(missingSelections).length > 0) {
+      setErrors({ orderMembers: missingSelections });
+      return;
+    }
 
     const response = await fetch("/api/match/set", {
       method: "POST",
@@ -137,6 +151,11 @@ export default function Set() {
             >
               S{rotation}
             </label>
+            {errors.orderMembers?.[rotation] && (
+              <p className="text-red-600 text-sm mt-1">
+                {errors.orderMembers[rotation]}
+              </p>
+            )}
           </div>
         ))}
 
