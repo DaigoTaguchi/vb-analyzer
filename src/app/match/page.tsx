@@ -124,9 +124,7 @@ export default function Match() {
     const data = await response.json();
     const matchId = data.matchId;
 
-    router.push(
-      `/match/set?teamId=${homeTeam.id}&matchId=${matchId}&setNumber=1`
-    );
+    router.push(`/match/${matchId}/set?teamId=${homeTeam.id}&setNumber=1`);
   };
 
   return (

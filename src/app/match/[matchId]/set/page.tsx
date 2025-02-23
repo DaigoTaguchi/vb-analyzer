@@ -1,7 +1,12 @@
 "use client";
 
 import { SimpleButton } from "@/app/components/SimpleButton";
-import { notFound, useSearchParams } from "next/navigation";
+import {
+  notFound,
+  useParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { useEffect, useState } from "react";
 
 type Player = {
@@ -16,10 +21,10 @@ type OrderMember = {
 };
 
 export default function Set() {
+  const { matchId } = useParams<{ matchId: string }>();
   const searchParams = useSearchParams();
   const teamId = searchParams.get("teamId");
   const setNumber = searchParams.get("setNumber");
-  const matchId = searchParams.get("matchId");
 
   // /match ページで試合情報の登録をしたときの ID をクエリで送信するように変更する必要がある
   if (!setNumber || !teamId || !matchId) {
@@ -37,6 +42,8 @@ export default function Set() {
     apiError?: string;
     orderMembers?: { [key: number]: string };
   }>({});
+
+  const router = useRouter();
 
   useEffect(() => {
     // API でチームに所属している選手一覧を取得
@@ -91,7 +98,6 @@ export default function Set() {
         setNumber: parseInt(setNumber),
         homeTeamScore: 0,
         opponentTeamScore: 0,
-        isWon: false,
         orderMembers,
       }),
     });
@@ -104,7 +110,11 @@ export default function Set() {
       }));
       return;
     }
+
+    const data = await response.json();
     console.log("登録成功");
+
+    router.push(`/match/${matchId}/set/${data.setId}`);
   };
 
   return (
