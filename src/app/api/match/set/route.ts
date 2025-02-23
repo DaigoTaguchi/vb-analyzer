@@ -16,11 +16,11 @@ const SetRequestBodySchema = z.object({
   ),
 });
 
-// team 一覧の情報を入力されたときに呼び出される API
-// DB に既に team が存在するかどうかを確認して、存在している場合はエラーを返す
 export async function POST(req: Request) {
   const body = await req.json();
+  console.log(body);
   const result = SetRequestBodySchema.safeParse(body);
+  console.log(result.error);
   if (!result.success) {
     return NextResponse.json(
       { message: "Invalid request body" },

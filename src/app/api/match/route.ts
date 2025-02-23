@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     result.data;
 
   try {
-    await prisma.matches.create({
+    const match = await prisma.matches.create({
       data: {
         title,
         homeTeamName,
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
       },
     });
     return NextResponse.json(
-      { message: "match created successfully" },
+      { message: "match created successfully", matchId: match.id },
       { status: 201 }
     );
   } catch (error) {

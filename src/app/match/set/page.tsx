@@ -1,8 +1,8 @@
 "use client";
 
+import { SimpleButton } from "@/app/components/SimpleButton";
 import { notFound, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { z } from "zod";
 
 type Player = {
   id: number;
@@ -12,22 +12,8 @@ type Player = {
 
 type OrderMember = {
   rotation: number;
-  setId: number;
   playerId: number | null;
 };
-
-const SetSchema = z.array(
-  z.object({
-    rotation: z.number(),
-    setId: z.number(),
-    playerId: z
-      .number()
-      .nullable()
-      .refine((val) => val !== null, {
-        message: "選手を選択してください",
-      }),
-  })
-);
 
 export default function Set() {
   const searchParams = useSearchParams();
@@ -44,18 +30,12 @@ export default function Set() {
   const [orderMembers, setOrderMembers] = useState<OrderMember[]>(
     Array.from({ length: 6 }, (_, i) => ({
       rotation: i + 1, // S1 ～ S6 のローテーション番号
-      setId: 1, // ここは仮の値。実際のセット ID に変更してください
       playerId: null,
     }))
   );
-  const [errors, setErrors] = useState<Record<number, string | null>>({});
-
-  const handleSubmit = (e: React.FormEvent) => {
-    // API で選手を登録
-    e.preventDefault();
-
-    const result = SetSchema.safeParse(orderMembers);
-  };
+  const [errors, setErrors] = useState<{
+    apiError?: string;
+  }>({});
 
   useEffect(() => {
     // API でチームに所属している選手一覧を取得
@@ -83,6 +63,36 @@ export default function Set() {
     );
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    // API で選手を登録
+    e.preventDefault();
+
+    const response = await fetch("/api/match/set", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        matchId: parseInt(matchId),
+        setNumber: parseInt(setNumber),
+        homeTeamScore: 0,
+        opponentTeamScore: 0,
+        isWon: false,
+        orderMembers,
+      }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      setErrors((prev) => ({
+        ...prev,
+        apiError: data.message || "セット情報の登録に失敗しました",
+      }));
+      return;
+    }
+    console.log("登録成功");
+  };
+
   return (
     <>
       <div className="text-center">
@@ -107,7 +117,7 @@ export default function Set() {
                 handlePlayerChange(rotation, Number(e.target.value))
               }
             >
-              <option value="" disabled selected>
+              <option value="">
                 S{rotation} ローテーションの選手を選択してください
               </option>
               {players.map((player) => (
@@ -129,6 +139,51 @@ export default function Set() {
             </label>
           </div>
         ))}
+
+        {errors.apiError && (
+          <div
+            className="bg-red-50 border-s-4 border-red-500 p-4 dark:bg-red-800/30"
+            role="alert"
+            tabIndex={-1}
+            aria-labelledby="hs-bordered-red-style-label"
+          >
+            <div className="flex">
+              <div className="shrink-0">
+                <span className="inline-flex justify-center items-center size-8 rounded-full border-4 border-red-100 bg-red-200 text-red-800 dark:border-red-900 dark:bg-red-800 dark:text-red-400">
+                  <svg
+                    className="shrink-0 size-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 6 6 18"></path>
+                    <path d="m6 6 12 12"></path>
+                  </svg>
+                </span>
+              </div>
+              <div className="ms-3">
+                <h3
+                  id="hs-bordered-red-style-label"
+                  className="text-gray-800 font-semibold dark:text-white"
+                >
+                  Error!
+                </h3>
+                <p className="text-sm text-gray-700 dark:text-neutral-400">
+                  {errors.apiError}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="flex justify-center">
+          <SimpleButton width="large" type="submit" text="セット情報を登録" />
+        </div>
       </form>
     </>
   );
