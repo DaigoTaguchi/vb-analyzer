@@ -4,7 +4,7 @@ import SimpleCard from "./components/SimpleCard";
 
 export default function Home() {
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-4 max-w-7xl mx-auto">
       <SimpleCard title="チーム登録" linkName="チーム登録へ" linkHref="/team">
         チームの登録を行います。既に登録済みの場合は不要です。登録した情報をもとに、試合データを入力し、分析することができます。
       </SimpleCard>

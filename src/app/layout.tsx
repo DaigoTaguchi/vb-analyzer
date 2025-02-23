@@ -17,7 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="flex flex-col items-center">
         <Header />
-        <main className="w-full max-w-5xl mx-auto px-4 py-8">{children}</main>
+        <main className="w-full max-w-auto mx-auto px-4 py-8">{children}</main>
       </body>
       <PrelineScript />
     </html>
