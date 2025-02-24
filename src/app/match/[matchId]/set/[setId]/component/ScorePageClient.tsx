@@ -1,4 +1,5 @@
 "use client";
+import AttackDialog from "@/app/components/DIalog";
 import { useState } from "react";
 
 type Player = {
@@ -43,7 +44,12 @@ export default function ScorePageClient(props: {
   // ローテーション順に並び替える
   const sortedPlayers = props.orderMembers
     .sort((a, b) => a.rotation - b.rotation)
-    .map((order) => props.players.find((p) => p.id === order.playerId));
+    .map(
+      (order) =>
+        props.players.find((p) => p.id === order.playerId) ?? {
+          name: "player not found",
+        }
+    );
 
   return (
     <>
@@ -93,26 +99,14 @@ export default function ScorePageClient(props: {
         {/* フォーメーションボタン */}
         <div className="max-w-sm w-full mx-auto grid grid-cols-3 gap-4">
           {/* 前衛 */}
-          <button className="py-2 px-4 bg-blue-600 text-white rounded-lg">
-            {sortedPlayers[3]?.name}
-          </button>
-          <button className="py-2 px-4 bg-blue-600 text-white rounded-lg">
-            {sortedPlayers[2]?.name}
-          </button>
-          <button className="py-2 px-4 bg-blue-600 text-white rounded-lg">
-            {sortedPlayers[1]?.name}
-          </button>
+          <AttackDialog buttonText={sortedPlayers[3].name} />
+          <AttackDialog buttonText={sortedPlayers[2].name} />
+          <AttackDialog buttonText={sortedPlayers[1].name} />
 
           {/* 後衛 */}
-          <button className="py-2 px-4 bg-blue-600 text-white rounded-lg">
-            {sortedPlayers[4]?.name}
-          </button>
-          <button className="py-2 px-4 bg-blue-600 text-white rounded-lg">
-            {sortedPlayers[5]?.name}
-          </button>
-          <button className="py-2 px-4 bg-blue-600 text-white rounded-lg">
-            {sortedPlayers[0]?.name}
-          </button>
+          <AttackDialog buttonText={sortedPlayers[4].name} />
+          <AttackDialog buttonText={sortedPlayers[5].name} />
+          <AttackDialog buttonText={sortedPlayers[0].name} />
         </div>
       </div>
     </>
