@@ -1,5 +1,8 @@
-"use client";
-import { useParams } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import ScorePageClient from "./component/ScorePageClient";
+
+// /match/[matchId]/set/[setId] ページの親ページ
+// サーバーコンポーネントとして実装
 
 // ページを開いたときにサーバーから試合の情報を取得する
 // 表示する項目は以下
@@ -15,17 +18,58 @@ import { useParams } from "next/navigation";
 //
 // 各種データはローカルストレージに保存しておいて、セット終了時にまとめてサーバーに API で送る方がいい
 // ブラウザ更新時に復元できてほしい
-export default function ScorePage() {
-  const { setId } = useParams<{ setId: string }>();
+export default async function ScorePage({
+  params,
+}: {
+  params: Promise<{ matchId: string; setId: string }>;
+}) {
+  const matchId = parseInt((await params).matchId);
+  const setId = parseInt((await params).setId);
+
+  const match = await prisma.matches.findUnique({
+    where: { id: matchId },
+  });
+
+  if (!match) {
+    return <div>試合タイトルが見つかりません</div>;
+  }
+
+  const { homeTeamName, opponentTeamName, teamId } = match;
+
+  const players = await prisma.players.findMany({
+    where: { teamId },
+  });
+
+  if (!teamId) {
+    return <div>選手情報の一覧取得に失敗しました</div>;
+  }
+
+  const set = await prisma.sets.findFirst({
+    where: {
+      id: setId,
+    },
+  });
+
+  if (!set) {
+    return <div>セット情報の取得に失敗しました</div>;
+  }
+
+  const orderMembers = await prisma.orderMembers.findMany({
+    where: { setId },
+  });
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className="bg-white rounded-xl shadow sm:p-7">
-        <div className="text-center">
-          <h2 className="text-xl font-bold text-gray-800">試合情報の入力</h2>
-          <p className="text-sm text-gray-600 my-2">
-            vb-analyzer に登録するチームの情報を入力してください {setId}
-          </p>
-        </div>
+        <h1 className="text-3xl font-bold text-center">
+          {homeTeamName} vs {opponentTeamName}
+        </h1>
+        <ScorePageClient
+          players={players}
+          set={set}
+          match={match}
+          orderMembers={orderMembers}
+        />
       </div>
     </div>
   );
