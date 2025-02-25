@@ -2,6 +2,7 @@
 import AttackDialog from "@/app/components/DIalog";
 import { OrderMembers, Players } from "@prisma/client";
 import { useState } from "react";
+import MatchStartModal from "./MatchStartModal";
 
 type Stats = {
   playerId: number;
@@ -84,6 +85,7 @@ export default function ScorePageClient(props: {
 
   return (
     <>
+      <MatchStartModal />
       <div className="flex flex-col items-center space-y-4">
         <div className="w-full max-w-lg mt-4">
           <div className="flex justify-center items-center border-4 border-gray-800 rounded-lg p-4">
@@ -152,6 +154,7 @@ export default function ScorePageClient(props: {
         <div className="text-center mt-20 ">
           <h2 className="text-xl font-bold text-gray-800">フォーメーション</h2>
         </div>
+
         {/* フォーメーションボタン */}
         <div className="max-w-sm w-full mx-auto grid grid-cols-3 gap-4">
           {formationGrid.map((player, index) => (

@@ -4,7 +4,6 @@ import { z } from "zod";
 
 const MatchRequestBodySchema = z.object({
   title: z.string(),
-  homeTeamName: z.string(),
   teamId: z.number(),
   opponentTeamName: z.string(),
   setLength: z.number(),
