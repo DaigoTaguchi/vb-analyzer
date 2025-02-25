@@ -54,9 +54,6 @@ export default async function ScorePage({
   return (
     <div className="max-w-7xl mx-auto">
       <div className="bg-white rounded-xl shadow sm:p-7">
-        <h1 className="text-3xl font-bold text-center">
-          {match.teams.name} vs {match.opponentTeamName}
-        </h1>
         <ScorePageClient
           homeTeamName={match.teams.name}
           opponentTeamName={match.opponentTeamName}

@@ -6,7 +6,12 @@ import {
 } from "@headlessui/react";
 import { useState } from "react";
 
-export default function AttackDialog(props: { buttonText: string }) {
+export default function AttackDialog(props: {
+  buttonText: string;
+  onSuccess: () => void;
+  onMistake: () => void;
+  onRally: () => void;
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -39,19 +44,28 @@ export default function AttackDialog(props: { buttonText: string }) {
             </p>
             <div className="flex gap-4">
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  props.onSuccess();
+                  setIsOpen(false);
+                }}
                 className="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-blue-600 text-blue-600 hover:border-blue-500 hover:text-blue-500 focus:outline-none focus:border-blue-500 focus:text-blue-500 disabled:opacity-50 disabled:pointer-events-none"
               >
                 成功
               </button>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  props.onMistake();
+                  setIsOpen(false);
+                }}
                 className="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-red-500 text-red-500 hover:border-red-400 hover:text-red-400 focus:outline-none focus:border-red-400 focus:text-red-400 disabled:opacity-50 disabled:pointer-events-none"
               >
                 失敗
               </button>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  props.onRally();
+                  setIsOpen(false);
+                }}
                 className="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-teal-500 text-teal-500 hover:border-teal-400 hover:text-teal-400 focus:outline-none focus:border-teal-400 focus:text-teal-400 disabled:opacity-50 disabled:pointer-events-none"
               >
                 返球
