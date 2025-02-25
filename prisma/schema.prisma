@@ -29,7 +29,6 @@ model Players {
 
   // child
   orderMembers OrderMembers[]
-  matchStats MatchStats?
 
   @@map("players")
 }
@@ -40,7 +39,6 @@ model Matches {
   eventedAt        DateTime @default(now()) @map("evented_at")
 
   title            String @map("title")          @db.VarChar(255) 
-  homeTeamName     String @map("home_team_name") @db.VarChar(255)
   opponentTeamName String @map("opponent_team_name")
   setLength           Int    @map("set_length") 
 
@@ -50,8 +48,6 @@ model Matches {
 
   // child
   sets Sets[]
-  matchStats MatchStats?
-  matchProgress MatchProgress?
 
   @@map("matches")
 }
@@ -71,7 +67,6 @@ model Sets {
   // child
   orderMembers OrderMembers[]
 
-  @@unique([setNumber, matchId]) // 1つの試合に同じセットを登録できないようにする
   @@map("sets")
 }
 
@@ -87,11 +82,14 @@ model OrderMembers {
   players Players @relation(fields: [playerId], references: [id], onDelete: Cascade)
   playerId Int    @map("player_id")
 
+  // child
+  matchStats MatchStats[]
+
   @@unique([setId, playerId]) // 1つのセットに同じ選手を重複登録できないようにする
   @@map("order_members")
 }
 
-// 試合のデータ
+// 選手のセットごとのデータ
 model MatchStats {
   id             Int @id @default(autoincrement())
 
@@ -100,19 +98,8 @@ model MatchStats {
   spikeMistakes  Int @map("spike_mistakes")
 
   // parent
-  players  Players @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  playerId Int     @unique @map("player_id")
-  matches  Matches @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  matchId  Int     @unique @map("match_id")
-}
+  orderMembers OrderMembers @relation(fields: [orderMemberId], references: [id], onDelete: Cascade)
+  orderMemberId Int @map("order_member_id")
 
-model MatchProgress {
-  id                Int @id @default(autoincrement())
-  setNumber         Int @map("set_number")
-  homeTeamScore     Int @map("home_team_score")
-  opponentTeamScore Int @map("opponent_team_score")
-
-  // parent
-  matches  Matches @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  matchId  Int     @unique @map("match_id")
+  @@map("match_stats")
 }

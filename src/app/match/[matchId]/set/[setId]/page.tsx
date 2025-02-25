@@ -28,47 +28,40 @@ export default async function ScorePage({
 
   const match = await prisma.matches.findUnique({
     where: { id: matchId },
-  });
-
-  if (!match) {
-    return <div>試合タイトルが見つかりません</div>;
-  }
-
-  const { homeTeamName, opponentTeamName, teamId } = match;
-
-  const players = await prisma.players.findMany({
-    where: { teamId },
-  });
-
-  if (!teamId) {
-    return <div>選手情報の一覧取得に失敗しました</div>;
-  }
-
-  const set = await prisma.sets.findFirst({
-    where: {
-      id: setId,
+    include: {
+      teams: {
+        include: {
+          players: true,
+        },
+      },
+      sets: {
+        where: { id: setId },
+        include: {
+          orderMembers: {
+            include: {
+              players: true,
+            },
+          },
+        },
+      },
     },
   });
 
-  if (!set) {
-    return <div>セット情報の取得に失敗しました</div>;
+  if (!match) {
+    return <div>試合情報の取得に失敗しました</div>;
   }
-
-  const orderMembers = await prisma.orderMembers.findMany({
-    where: { setId },
-  });
 
   return (
     <div className="max-w-7xl mx-auto">
       <div className="bg-white rounded-xl shadow sm:p-7">
         <h1 className="text-3xl font-bold text-center">
-          {homeTeamName} vs {opponentTeamName}
+          {match.teams.name} vs {match.opponentTeamName}
         </h1>
         <ScorePageClient
-          players={players}
-          set={set}
-          match={match}
-          orderMembers={orderMembers}
+          homeTeamName={match.teams.name}
+          opponentTeamName={match.opponentTeamName}
+          players={match.teams.players}
+          orderMembers={match.sets[0].orderMembers}
         />
       </div>
     </div>

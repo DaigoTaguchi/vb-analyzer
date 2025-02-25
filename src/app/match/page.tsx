@@ -105,7 +105,6 @@ export default function Match() {
       },
       body: JSON.stringify({
         title,
-        homeTeamName: homeTeam.name || "",
         teamId: homeTeam.id || opponentTeamName,
         opponentTeamName,
         setLength: parseInt(setLength),
