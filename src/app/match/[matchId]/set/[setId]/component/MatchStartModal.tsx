@@ -1,6 +1,13 @@
-import { useEffect } from "react";
+"use client";
+import { useEffect, useState } from "react";
 
-const MatchStartModal = () => {
+const MatchStartModal = (props: {
+  homeTeamName: string;
+  opponentTeamName: string;
+  onServeSelection: (isServe: boolean) => void;
+}) => {
+  const [selectedTeam, setSelectedTeam] = useState<null | boolean>(null);
+
   useEffect(() => {
     const modal = document.getElementById("hs-basic-modal");
     const overlay = document.getElementById("overlay");
@@ -16,6 +23,19 @@ const MatchStartModal = () => {
       overlay.style.pointerEvents = "auto";
     }
   }, []);
+
+  const closeModal = () => {
+    const modal = document.getElementById("hs-basic-modal");
+    const overlay = document.getElementById("overlay");
+    if (modal && overlay) {
+      modal.classList.add("opacity-0");
+      modal.classList.remove("opacity-100");
+      overlay.classList.add("opacity-0");
+      overlay.classList.remove("opacity-50");
+      modal.style.pointerEvents = "none";
+      overlay.style.pointerEvents = "none";
+    }
+  };
 
   return (
     <div>
@@ -35,7 +55,7 @@ const MatchStartModal = () => {
       >
         <div className="sm:max-w-lg sm:w-full m-3 sm:mx-auto">
           <div className="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto">
-            <div className="flex justify-between items-center py-3 px-4 border-b">
+            <div className="flex justify-between items-center py-3 px-4">
               <h3 id="hs-basic-modal-label" className="font-bold text-gray-800">
                 サーブ権の選択
               </h3>
@@ -44,16 +64,7 @@ const MatchStartModal = () => {
                 className="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none"
                 aria-label="Close"
                 onClick={() => {
-                  const modal = document.getElementById("hs-basic-modal");
-                  const overlay = document.getElementById("overlay");
-                  if (modal && overlay) {
-                    modal.classList.add("opacity-0");
-                    modal.classList.remove("opacity-100");
-                    overlay.classList.add("opacity-0");
-                    overlay.classList.remove("opacity-50");
-                    modal.style.pointerEvents = "none";
-                    overlay.style.pointerEvents = "none";
-                  }
+                  closeModal();
                 }}
               >
                 <span className="sr-only">Close</span>
@@ -74,27 +85,50 @@ const MatchStartModal = () => {
                 </svg>
               </button>
             </div>
-            <div className="p-4 overflow-y-auto">
+            <div className="p-4 overflow-y-auto space-y-4">
               <p className="mt-1 text-gray-800">
                 サーブ権を選んで、試合を開始してください。
               </p>
-              {/* サーブ権選択フォームやボタン */}
+              <div className="grid sm:grid-cols-2 gap-2">
+                <label
+                  htmlFor="hs-radio-home"
+                  className="flex p-3 w-full bg-white border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
+                >
+                  <span className="text-sm text-gray-500">
+                    {props.homeTeamName}
+                  </span>
+                  <input
+                    type="radio"
+                    name="hs-radio-home"
+                    className="shrink-0 ms-auto mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                    id="hs-radio-home"
+                    onChange={() => setSelectedTeam(true)}
+                  />
+                </label>
+
+                <label
+                  htmlFor="hs-radio-opponent"
+                  className="flex p-3 w-full bg-white border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
+                >
+                  <span className="text-sm text-gray-500">
+                    {props.opponentTeamName}
+                  </span>
+                  <input
+                    type="radio"
+                    name="hs-radio-on-opponent"
+                    className="shrink-0 ms-auto mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                    id="hs-radio-on-opponent"
+                    onChange={() => setSelectedTeam(false)}
+                  />
+                </label>
+              </div>
             </div>
-            <div className="flex justify-end items-center gap-x-2 py-3 px-4 border-t">
+            <div className="flex justify-end items-center gap-x-2 py-3 px-4">
               <button
                 type="button"
                 className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
                 onClick={() => {
-                  const modal = document.getElementById("hs-basic-modal");
-                  const overlay = document.getElementById("overlay");
-                  if (modal && overlay) {
-                    modal.classList.add("opacity-0");
-                    modal.classList.remove("opacity-100");
-                    overlay.classList.add("opacity-0");
-                    overlay.classList.remove("opacity-50");
-                    modal.style.pointerEvents = "none";
-                    overlay.style.pointerEvents = "none";
-                  }
+                  closeModal();
                 }}
               >
                 Close
@@ -102,6 +136,13 @@ const MatchStartModal = () => {
               <button
                 type="button"
                 className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+                onClick={() => {
+                  if (selectedTeam !== null) {
+                    props.onServeSelection(selectedTeam);
+                  }
+                  closeModal();
+                }}
+                disabled={selectedTeam === null}
               >
                 試合開始
               </button>

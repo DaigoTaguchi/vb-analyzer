@@ -123,7 +123,7 @@ export default function Set() {
         <div className="text-center">
           <h2 className="text-xl font-bold text-gray-800">セット情報の登録</h2>
           <p className="text-sm text-gray-600 my-2">
-            1セット目に出場する選手の情報を入力してください
+            セットの情報を入力してください
           </p>
         </div>
         <form
