@@ -15,6 +15,8 @@ type Stats = {
   };
 };
 
+// TODO: スパイクデータを入力するたびに、stats をローカルストレージに保管して
+// ブラウザを reload してもデータを保持できるようにしたい
 export default function ScorePageClient(props: {
   matchId: number;
   setId: number;
@@ -157,6 +159,14 @@ export default function ScorePageClient(props: {
   return (
     <>
       <div className="flex flex-col items-center space-y-10">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-gray-800">
+            {props.setNumber}セット目のデータ入力
+          </h2>
+          <p className="text-sm text-gray-600 my-2">
+            {props.setNumber}セット目のデータを入力してください
+          </p>
+        </div>
         {/*スコア表示部分*/}
         <div className="flex flex-col items-center space-y-4">
           <div className="w-full max-w-lg mt-4">

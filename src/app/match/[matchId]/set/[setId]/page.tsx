@@ -52,7 +52,7 @@ export default async function ScorePage({
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-xl mx-auto">
       <div className="bg-white rounded-xl shadow sm:p-7">
         <ScorePageClient
           matchId={matchId}
