@@ -2,6 +2,7 @@
 import AttackDialog from "@/app/components/DIalog";
 import { SimpleButton } from "@/app/components/SimpleButton";
 import { OrderMembers, Players } from "@prisma/client";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type Stats = {
@@ -15,6 +16,9 @@ type Stats = {
 };
 
 export default function ScorePageClient(props: {
+  matchId: number;
+  teamId: number;
+  setNumber: number;
   homeTeamName: string;
   opponentTeamName: string;
   players: Players[];
@@ -33,6 +37,9 @@ export default function ScorePageClient(props: {
       },
     }))
   );
+  const [errors, setErrors] = useState<{
+    apiError?: string;
+  }>({});
 
   const initialFormation = props.orderMembers
     .map((order) => ({
@@ -56,6 +63,60 @@ export default function ScorePageClient(props: {
         }))
         .sort((a, b) => a.rotation - b.rotation)
     );
+  };
+
+  const router = useRouter();
+
+  const handleFinishSet = async () => {
+    const body = {
+      stats: stats.map((stat) => ({
+        spikes: stat.spikes.count,
+        spikeSuccesses: stat.spikes.success,
+        spikeMistakes: stat.spikes.mistake,
+        orderMemberId: props.orderMembers.find(
+          (order) => order.playerId === stat.playerId
+        )?.id,
+      })),
+    };
+
+    // セットの結果をサーバーに送る
+    // サーバー側で試合が終了したかどうかを判定して、response に送る
+
+    try {
+      const response = await fetch("/api/stats", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        setErrors((prev) => ({
+          ...prev,
+          apiError: data.message || "stats の登録に失敗しました",
+        }));
+        return;
+      }
+
+      const data = await response.json();
+      if (data.isFinish) {
+        // TODO: 試合が終了したら試合の結果画面に移動させる
+        return router.push("/");
+      }
+      // 試合がまだ終了してなければ、再度次のセット情報入力画面に遷移
+      return router.push(
+        `/match/${props.matchId}/set?teamId=${props.teamId}&setNumber=${
+          props.setNumber + 1
+        }`
+      );
+    } catch (error) {
+      setErrors((prev) => ({
+        ...prev,
+        apiError: error instanceof Error ? error.message : String(error),
+      }));
+    }
   };
 
   const updateStats = (
@@ -89,7 +150,7 @@ export default function ScorePageClient(props: {
 
   return (
     <>
-      <div className="flex flex-col items-center space-y-20">
+      <div className="flex flex-col items-center space-y-10">
         {/*スコア表示部分*/}
         <div className="flex flex-col items-center space-y-4">
           <div className="w-full max-w-lg mt-4">
@@ -201,7 +262,50 @@ export default function ScorePageClient(props: {
             {}
           </p>
         </div>
-        <SimpleButton width="large">セットを終了</SimpleButton>
+        {errors.apiError && (
+          <div
+            className="w-full max-w-lg bg-red-50 border-s-4 border-red-500 p-4 dark:bg-red-800/30"
+            role="alert"
+            tabIndex={-1}
+            aria-labelledby="hs-bordered-red-style-label"
+          >
+            <div className="flex">
+              <div className="shrink-0">
+                <span className="inline-flex justify-center items-center size-8 rounded-full border-4 border-red-100 bg-red-200 text-red-800 dark:border-red-900 dark:bg-red-800 dark:text-red-400">
+                  <svg
+                    className="shrink-0 size-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 6 6 18"></path>
+                    <path d="m6 6 12 12"></path>
+                  </svg>
+                </span>
+              </div>
+              <div className="ms-3">
+                <h3
+                  id="hs-bordered-red-style-label"
+                  className="text-gray-800 font-semibold dark:text-white"
+                >
+                  Error!
+                </h3>
+                <p className="text-sm text-gray-700 dark:text-neutral-400">
+                  {errors.apiError}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        <SimpleButton width="large" onClick={handleFinishSet}>
+          セットを終了
+        </SimpleButton>
       </div>
     </>
   );
