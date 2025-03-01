@@ -17,6 +17,7 @@ type Stats = {
 
 export default function ScorePageClient(props: {
   matchId: number;
+  setId: number;
   teamId: number;
   setNumber: number;
   homeTeamName: string;
@@ -69,6 +70,12 @@ export default function ScorePageClient(props: {
 
   const handleFinishSet = async () => {
     const body = {
+      set: {
+        id: props.setId,
+        homeTeamScore,
+        opponentTeamScore,
+        isWon: homeTeamScore > opponentTeamScore,
+      },
       stats: stats.map((stat) => ({
         spikes: stat.spikes.count,
         spikeSuccesses: stat.spikes.success,
@@ -101,6 +108,7 @@ export default function ScorePageClient(props: {
       }
 
       const data = await response.json();
+      console.log(data);
       if (data.isFinish) {
         // TODO: 試合が終了したら試合の結果画面に移動させる
         return router.push("/");
@@ -145,8 +153,6 @@ export default function ScorePageClient(props: {
       )
     );
   };
-
-  console.log(stats);
 
   return (
     <>

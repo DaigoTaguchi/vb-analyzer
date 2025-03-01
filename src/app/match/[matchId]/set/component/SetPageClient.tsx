@@ -82,7 +82,6 @@ export default function SetPageClient(props: {
     }
 
     const data = await response.json();
-    console.log("登録成功");
 
     router.push(`/match/${props.matchId}/set/${data.setId}`);
   };
@@ -90,9 +89,11 @@ export default function SetPageClient(props: {
   return (
     <>
       <div className="text-center">
-        <h2 className="text-xl font-bold text-gray-800">セット情報の登録</h2>
+        <h2 className="text-xl font-bold text-gray-800">
+          第{props.setNumber}セット情報の登録
+        </h2>
         <p className="text-sm text-gray-600 my-2">
-          セットの情報を入力してください
+          第{props.setNumber}セットの情報を入力してください
         </p>
       </div>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4 md:p-8">

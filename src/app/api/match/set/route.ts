@@ -17,9 +17,7 @@ const SetRequestBodySchema = z.object({
 
 export async function POST(req: Request) {
   const body = await req.json();
-  console.log(body);
   const result = SetRequestBodySchema.safeParse(body);
-  console.log(result.error);
   if (!result.success) {
     return NextResponse.json(
       { message: "Invalid request body" },

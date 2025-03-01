@@ -52,7 +52,6 @@ export default function Match() {
         const response = await fetch("/api/teams");
         if (!response.ok) throw new Error("Failed to fetch teams");
         const data = await response.json();
-        console.log(data);
         setTeams(data.teams);
         setFilteredTeams(data.teams); // 初期状態ではすべて表示
       } catch (error) {

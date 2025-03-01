@@ -56,8 +56,9 @@ export default async function ScorePage({
       <div className="bg-white rounded-xl shadow sm:p-7">
         <ScorePageClient
           matchId={matchId}
+          setId={setId}
           teamId={match.teamId}
-          setNumber={match.sets[0].id}
+          setNumber={match.sets[0].setNumber}
           homeTeamName={match.teams.name}
           opponentTeamName={match.opponentTeamName}
           players={match.teams.players}
