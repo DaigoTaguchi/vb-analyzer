@@ -215,7 +215,9 @@ export default function Team() {
             </div>
           )}
           <div className="flex justify-center">
-            <SimpleButton width="large" type="submit" text="チームを登録" />
+            <SimpleButton width="large" type="submit">
+              チームを登録
+            </SimpleButton>
           </div>
         </div>
       </form>

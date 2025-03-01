@@ -1,10 +1,12 @@
 "use client";
 import AttackDialog from "@/app/components/DIalog";
+import { SimpleButton } from "@/app/components/SimpleButton";
 import { OrderMembers, Players } from "@prisma/client";
 import { useState } from "react";
 
 type Stats = {
   playerId: number;
+  playerName: string;
   spikes: {
     count: number;
     success: number;
@@ -23,6 +25,7 @@ export default function ScorePageClient(props: {
   const [stats, setStats] = useState<Stats[]>(
     props.players.map((player) => ({
       playerId: player.id,
+      playerName: player.name,
       spikes: {
         count: 0,
         success: 0,
@@ -147,8 +150,11 @@ export default function ScorePageClient(props: {
         </div>
 
         {/*フォーメーション表示部分*/}
-        <div className="flex flex-col items-center space-y-8">
-          <h2 className="text-xl font-bold text-gray-800">フォーメーション</h2>
+        <div className="w-full max-w-lg flex flex-col items-center space-y-8">
+          <div className="w-full max-w-lg py-3 flex items-center text-sm text-gray-800 before:flex-1 before:border-t before:border-gray-200 before:me-6 after:flex-1 after:border-t after:border-gray-200 after:ms-6">
+            フォーメーション
+          </div>
+          {/* <h2 className="text-xl font-bold text-gray-800">フォーメーション</h2> */}
           {/* フォーメーションボタン */}
           <div className="max-w-sm w-full mx-auto grid grid-cols-3 gap-4">
             {[
@@ -177,6 +183,25 @@ export default function ScorePageClient(props: {
             ⟳
           </button>
         </div>
+
+        <div className="w-full max-w-lg flex flex-col items-center space-y-3 border">
+          {stats.map((stat) => (
+            <p
+              key={stat.playerId}
+              className="bg-clip-text bg-gradient-to-tl from-blue-500 to-violet-500 text-transparent"
+            >
+              {stat.playerName} アタック成功率 :{" "}
+              {stat.spikes.count === 0
+                ? 0
+                : (stat.spikes.success / stat.spikes.count) * 100}{" "}
+              % ({stat.spikes.success} / {stat.spikes.count} 本)
+            </p>
+          ))}
+          <p className="bg-clip-text bg-gradient-to-tl from-blue-500 to-violet-500 text-transparent">
+            {}
+          </p>
+        </div>
+        <SimpleButton width="large">セットを終了</SimpleButton>
       </div>
     </>
   );

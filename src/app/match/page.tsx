@@ -307,7 +307,9 @@ export default function Match() {
                 </div>
               </div>
             )}
-            <SimpleButton text="入力完了" width="medium" type="submit" />
+            <SimpleButton width="medium" type="submit">
+              入力完了
+            </SimpleButton>
           </div>
         </form>
       </div>

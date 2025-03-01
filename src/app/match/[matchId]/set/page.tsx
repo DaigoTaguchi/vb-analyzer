@@ -215,7 +215,9 @@ export default function Set() {
             </div>
           )}
           <div className="flex justify-center">
-            <SimpleButton width="large" type="submit" text="セット情報を登録" />
+            <SimpleButton width="large" type="submit">
+              セット情報を登録
+            </SimpleButton>
           </div>
         </form>
       </div>
