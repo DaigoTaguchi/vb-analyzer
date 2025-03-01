@@ -113,7 +113,7 @@ export default function ScorePageClient(props: {
       console.log(data);
       if (data.isFinish) {
         // TODO: 試合が終了したら試合の結果画面に移動させる
-        return router.push("/");
+        return router.push(`/match/${props.matchId}/result`);
       }
       // 試合がまだ終了してなければ、再度次のセット情報入力画面に遷移
       return router.push(

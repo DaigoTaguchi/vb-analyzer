@@ -83,14 +83,14 @@ model OrderMembers {
   playerId Int    @map("player_id")
 
   // child
-  matchStats MatchStats[]
+  spikeStats SpikeStats?
 
   @@unique([setId, playerId]) // 1つのセットに同じ選手を重複登録できないようにする
   @@map("order_members")
 }
 
 // 選手のセットごとのデータ
-model MatchStats {
+model SpikeStats {
   id             Int @id @default(autoincrement())
 
   spikes         Int @map("spikes")
@@ -99,7 +99,7 @@ model MatchStats {
 
   // parent
   orderMembers OrderMembers @relation(fields: [orderMemberId], references: [id], onDelete: Cascade)
-  orderMemberId Int @map("order_member_id")
+  orderMemberId Int @map("order_member_id") @unique
 
-  @@map("match_stats")
+  @@map("spike_stats")
 }

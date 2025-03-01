@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     // セットの統計データを登録
     const stats = result.data.stats;
     if (stats.length > 0) {
-      await prisma.matchStats.createMany({
+      await prisma.spikeStats.createMany({
         data: stats,
       });
     }
