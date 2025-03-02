@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import preline from "preline/plugin";
 
 export default {
   content: [
@@ -7,6 +8,7 @@ export default {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./node_modules/preline/preline.js",
   ],
+  plugins: [preline],
   theme: {
     extend: {
       colors: {

@@ -4,7 +4,6 @@ import { z } from "zod";
 
 const MatchRequestBodySchema = z.object({
   title: z.string(),
-  homeTeamName: z.string(),
   teamId: z.number(),
   opponentTeamName: z.string(),
   setLength: z.number(),
@@ -22,14 +21,12 @@ export async function POST(req: Request) {
     );
   }
 
-  const { title, homeTeamName, opponentTeamName, setLength, teamId } =
-    result.data;
+  const { title, opponentTeamName, setLength, teamId } = result.data;
 
   try {
     const match = await prisma.matches.create({
       data: {
         title,
-        homeTeamName,
         teamId,
         opponentTeamName,
         setLength,

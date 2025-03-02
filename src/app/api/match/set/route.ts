@@ -7,7 +7,6 @@ const SetRequestBodySchema = z.object({
   setNumber: z.number(),
   homeTeamScore: z.number(),
   opponentTeamScore: z.number(),
-  isWon: z.boolean(),
   orderMembers: z.array(
     z.object({
       rotation: z.number(),
@@ -18,9 +17,7 @@ const SetRequestBodySchema = z.object({
 
 export async function POST(req: Request) {
   const body = await req.json();
-  console.log(body);
   const result = SetRequestBodySchema.safeParse(body);
-  console.log(result.error);
   if (!result.success) {
     return NextResponse.json(
       { message: "Invalid request body" },
@@ -28,18 +25,13 @@ export async function POST(req: Request) {
     );
   }
 
-  const {
-    matchId,
-    setNumber,
-    homeTeamScore,
-    opponentTeamScore,
-    isWon,
-    orderMembers,
-  } = result.data;
+  const { matchId, setNumber, homeTeamScore, opponentTeamScore, orderMembers } =
+    result.data;
+  const isWon = homeTeamScore > opponentTeamScore;
 
   try {
-    await prisma.$transaction(async (tx) => {
-      const set = await tx.sets.create({
+    const set = await prisma.$transaction(async (tx) => {
+      const createdSet = await tx.sets.create({
         data: {
           setNumber,
           homeTeamScore,
@@ -53,13 +45,14 @@ export async function POST(req: Request) {
         data: orderMembers.map((member) => ({
           rotation: member.rotation,
           playerId: member.playerId,
-          setId: set.id,
+          setId: createdSet.id,
         })),
       });
+      return createdSet;
     });
 
     return NextResponse.json(
-      { message: "set and orderMember created successfully" },
+      { message: "set and orderMember created successfully", setId: set.id },
       { status: 201 }
     );
   } catch (error) {

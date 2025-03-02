@@ -1,8 +1,8 @@
 "use client";
 
 import { SimpleButton } from "@/app/components/SimpleButton";
-import { notFound, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type Player = {
   id: number;
@@ -15,18 +15,11 @@ type OrderMember = {
   playerId: number | null;
 };
 
-export default function Set() {
-  const searchParams = useSearchParams();
-  const teamId = searchParams.get("teamId");
-  const setNumber = searchParams.get("setNumber");
-  const matchId = searchParams.get("matchId");
-
-  // /match ページで試合情報の登録をしたときの ID をクエリで送信するように変更する必要がある
-  if (!setNumber || !teamId || !matchId) {
-    notFound();
-  }
-
-  const [players, setPlayers] = useState<Player[]>([]);
+export default function SetPageClient(props: {
+  matchId: number;
+  setNumber: number;
+  players: Player[];
+}) {
   const [orderMembers, setOrderMembers] = useState<OrderMember[]>(
     Array.from({ length: 6 }, (_, i) => ({
       rotation: i + 1, // S1 ～ S6 のローテーション番号
@@ -38,23 +31,7 @@ export default function Set() {
     orderMembers?: { [key: number]: string };
   }>({});
 
-  useEffect(() => {
-    // API でチームに所属している選手一覧を取得
-    const fetchPlayers = async () => {
-      try {
-        const response = await fetch(`/api/players?teamId=${teamId}`);
-        if (!response.ok) throw new Error("Failed to fetch players");
-        const data = await response.json();
-        console.log(data);
-        setPlayers(data.players);
-      } catch (error) {
-        console.error(error);
-        setPlayers([]);
-      }
-    };
-
-    fetchPlayers();
-  }, [teamId]);
+  const router = useRouter();
 
   const handlePlayerChange = (rotation: number, playerId: number) => {
     setOrderMembers((prev) =>
@@ -87,11 +64,10 @@ export default function Set() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        matchId: parseInt(matchId),
-        setNumber: parseInt(setNumber),
+        matchId: props.matchId,
+        setNumber: props.setNumber,
         homeTeamScore: 0,
         opponentTeamScore: 0,
-        isWon: false,
         orderMembers,
       }),
     });
@@ -104,15 +80,20 @@ export default function Set() {
       }));
       return;
     }
-    console.log("登録成功");
+
+    const data = await response.json();
+
+    router.push(`/match/${props.matchId}/set/${data.setId}`);
   };
 
   return (
     <>
       <div className="text-center">
-        <h2 className="text-xl font-bold text-gray-800">セット情報の登録</h2>
+        <h2 className="text-xl font-bold text-gray-800">
+          第{props.setNumber}セット情報の登録
+        </h2>
         <p className="text-sm text-gray-600 my-2">
-          1セット目に出場する選手の情報を入力してください
+          第{props.setNumber}セットの情報を入力してください
         </p>
       </div>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4 md:p-8">
@@ -134,7 +115,7 @@ export default function Set() {
               <option value="">
                 S{rotation} ローテーションの選手を選択してください
               </option>
-              {players.map((player) => (
+              {props.players.map((player) => (
                 <option key={player.id} value={player.id}>
                   {player.name}
                 </option>
@@ -201,7 +182,9 @@ export default function Set() {
           </div>
         )}
         <div className="flex justify-center">
-          <SimpleButton width="large" type="submit" text="セット情報を登録" />
+          <SimpleButton width="large" type="submit">
+            セット情報を登録
+          </SimpleButton>
         </div>
       </form>
     </>
