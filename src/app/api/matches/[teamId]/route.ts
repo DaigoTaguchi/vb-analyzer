@@ -3,9 +3,9 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
-  const teamId = parseInt(params.teamId, 10);
+  const teamId = parseInt((await params).teamId, 10);
   if (isNaN(teamId)) {
     return NextResponse.json({ error: "Invalid teamId" }, { status: 400 });
   }
