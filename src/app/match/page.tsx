@@ -252,15 +252,16 @@ export default function Match() {
                 </p>
               )}
             </div>
-            <div>
-              <label
-                htmlFor="setLength"
-                className="mb-2 inline-block text-sm text-gray-800 sm:text-base"
-              >
-                セット数
-              </label>
+            <div className="w-24">
               <SelectMenu
-                options={["1", "2", "3", "4", "5"]}
+                options={[
+                  { value: "1", label: "1" },
+                  { value: "2", label: "2" },
+                  { value: "3", label: "3" },
+                  { value: "4", label: "4" },
+                  { value: "5", label: "5" },
+                ]}
+                label="セット数"
                 initOption={setLength}
                 onChange={setSetLength}
               />

@@ -16,6 +16,14 @@ export default function Home() {
       >
         実際の試合データの入力を行います。収集したデータをもとに情報を可視化して一覧で確認できます。
       </SimpleCard>
+
+      <SimpleCard
+        title="試合データ閲覧"
+        linkName="試合データ閲覧へ"
+        linkHref="/data"
+      >
+        試合データの閲覧を行います。
+      </SimpleCard>
     </div>
   );
 }
