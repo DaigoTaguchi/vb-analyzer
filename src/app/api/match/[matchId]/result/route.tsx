@@ -43,9 +43,9 @@ type FetchErrorResponse = {
 
 export async function GET(
   request: Request,
-  { params }: { params: { matchId: string } }
+  { params }: { params: Promise<{ matchId: string }> }
 ): Promise<NextResponse<FetchResultResponse | FetchErrorResponse>> {
-  const matchId = parseInt(params.matchId, 10);
+  const matchId = parseInt((await params).matchId, 10);
   if (isNaN(matchId)) {
     return NextResponse.json({ error: "Invalid matchId" }, { status: 400 });
   }
